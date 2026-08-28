@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>CTR and Engagement Opportunity Scoring</title>
 
 <style>
@@ -89,13 +88,6 @@ th {
     font-size: 14px;
 }
 
-.note {
-    background: #fafafa;
-    border-left: 4px solid #aaa;
-    padding: 14px 18px;
-    margin: 20px 0;
-}
-
 .footer {
     margin-top: 50px;
     padding-top: 20px;
@@ -141,7 +133,6 @@ Ranking search-visible pages for human review using search visibility and engage
 <strong>Validation:</strong> grouped by client
 </div>
 
-
 <h2>Abstract</h2>
 
 <p>
@@ -151,7 +142,6 @@ The model was evaluated using a grouped-by-client 70/30 split, with 32 clients i
 The results show that the simple CTR and position-based rule already captures most of the signal represented by the current underperformance proxy, while Logistic Regression provides a comparable ranking for decision-support.
 These findings are descriptive and directional rather than causal, and the resulting queue is intended to prioritize human review rather than automatically change content.
 </p>
-
 
 <h2>1. Introduction / Problem</h2>
 
@@ -169,7 +159,6 @@ Instead, the goal is to create a ranked review queue that helps a content editor
 The output is therefore decision-support.
 A flagged page is a candidate for human investigation of its title, description, snippet, relevance, or surrounding context.
 </p>
-
 
 <h2>2. Data</h2>
 
@@ -200,7 +189,6 @@ AI-referral fields were excluded because they belong to a different analysis lan
 Click and impression totals were used to calculate CTR and the target definition but were not used as model features because doing so would create leakage.
 </p>
 
-
 <h2>3. Methodology</h2>
 
 <h3>Target</h3>
@@ -211,11 +199,10 @@ A page is labeled underperforming when its CTR is at or below the median CTR for
 The buckets are 1–3, 4–10, 11–20, 21–50, and 50+.
 </p>
 
-
 <h3>Features</h3>
 
 <p>
-The Logistic Regression model uses:
+The Logistic Regression model uses
 <code>avg_position</code>,
 <code>log_impressions</code>,
 <code>engaged_sessions</code>,
@@ -225,7 +212,6 @@ These features are aggregated from the March 2026 analysis window and are not di
 <code>total_clicks</code>, which is used to construct the target.
 </p>
 
-
 <h3>Baseline</h3>
 
 <p>
@@ -234,14 +220,12 @@ It uses CTR relative to the training-set position-bucket median together with a 
 Candidate pages are ranked by impression volume.
 </p>
 
-
 <h3>Model</h3>
 
 <p>
 Logistic Regression was selected as a simple and interpretable first model.
 Its predicted probability is used to rank pages for review.
 </p>
-
 
 <h3>Validation</h3>
 
@@ -251,7 +235,6 @@ This produced 32 training clients and 15 held-out test clients with zero client 
 The grouped design avoids placing pages from the same client in both training and test sets.
 </p>
 
-
 <h3>Leakage audit</h3>
 
 <p>
@@ -259,7 +242,6 @@ A deliberate leakage test added <code>total_clicks</code> to the model features 
 This produced training accuracy of 0.9911, demonstrating that the feature contains information directly related to the target construction.
 The feature was therefore excluded from the final model.
 </p>
-
 
 <h2>4. Results</h2>
 
@@ -293,8 +275,7 @@ This should not be interpreted as evidence that the rule is a better general-pur
 The baseline has a structural advantage because it directly uses the CTR-based rule that is closely related to the proxy target definition.
 </p>
 
-<img
-src="https://omarsamehabobaker619-bot.github.io/flyrank-ml-internship/work/figures/model_vs_baseline.png"
+<img src="figures/model_vs_baseline.png"
 alt="Model versus baseline Precision at 50">
 
 <p>
@@ -303,17 +284,14 @@ A naive random row split previously produced Precision@50 of 1.00, compared with
 The grouped result is therefore used as the more conservative evaluation.
 </p>
 
-
 <h3>CTR by search position</h3>
 
-<img
-src="https://omarsamehabobaker619-bot.github.io/flyrank-ml-internship/work/figures/ctr_by_position.png"
+<img src="figures/ctr_by_position.png"
 alt="Average CTR by search position">
 
 <p class="small">
 Observed average CTR declines across the search-position buckets in the March 2026 analysis window.
 </p>
-
 
 <h2>5. Limitations &amp; Honest Framing</h2>
 
@@ -332,7 +310,6 @@ Observed average CTR declines across the search-position buckets in the March 20
 
 <li><strong>Scope:</strong> the findings are specific to this dataset and analysis window and do not establish anything about Google's ranking algorithm.</li>
 </ul>
-
 
 <h2>6. Ranked Recommendations</h2>
 
@@ -371,10 +348,8 @@ This is a review signal, not proof that the title or snippet caused the low CTR.
 Pages with no stronger signal default to monitoring rather than being assigned a forced content change.
 </p>
 
-<img
-src="https://omarsamehabobaker619-bot.github.io/flyrank-ml-internship/work/figures/action_distribution.png"
+<img src="figures/action_distribution.png"
 alt="Recommended action distribution">
-
 
 <h3>Human review and no-go cases</h3>
 
@@ -384,7 +359,6 @@ The queue should not automatically publish, rewrite, delete, redirect, or deprio
 A reason code is not proof of an underlying cause, and no recommendation should be treated as a guarantee of improved performance.
 </p>
 
-
 <h3>Monitoring and retraining</h3>
 
 <p>
@@ -392,7 +366,6 @@ The queue should be re-evaluated on future labeled data.
 A meaningful drop in Precision@50, major changes in the target base rate, or changes in the position-bucket CTR distribution should trigger investigation.
 Retraining should be considered when the relationship between the available features and the target proxy changes materially.
 </p>
-
 
 <h2>7. Reproducibility</h2>
 
@@ -407,14 +380,12 @@ Relevant project notebooks include the Week 5 model, Week 6 validation audit, We
 
 <p>
 Repository:
-<a
-href="https://github.com/omarsamehabobaker619-bot/flyrank-ml-internship"
+<a href="https://github.com/omarsamehabobaker619-bot/flyrank-ml-internship"
 target="_blank"
 rel="noopener">
 FlyRank ML Internship repository
 </a>
 </p>
-
 
 <h2>8. Acknowledgments &amp; Data Credit</h2>
 
@@ -424,14 +395,12 @@ FlyRank ML Internship repository
 
 <p>
 Data source:
-<a
-href="https://flyrank.ai/"
+<a href="https://flyrank.ai/"
 target="_blank"
 rel="noopener">
 FlyRank
 </a>
 </p>
-
 
 <div class="footer">
 <p>
