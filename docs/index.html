@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTR and Engagement Opportunity Scoring</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.7;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  color: #222;
+  background: #f7f7f7;
+}
+main {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+}
+h1 {
+  font-size: 38px;
+  line-height: 1.2;
+}
+h2 {
+  margin-top: 40px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+.subtitle {
+  color: #666;
+  font-size: 18px;
+}
+.meta {
+  background: #f1f1f1;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+.result {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 18px;
+  background: #eef5ff;
+  border-left: 5px solid #4472c4;
+  margin: 20px 0;
+}
+img {
+  max-width: 100%;
+  display: block;
+  margin: 20px auto;
+  border-radius: 8px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+th {
+  background: #f1f1f1;
+}
+.small {
+  color: #666;
+  font-size: 14px;
+}
+a {
+  color: #2457a6;
+}
+@media (max-width: 600px) {
+  main {
+    padding: 24px;
+  }
+  h1 {
+    font-size: 30px;
+  }
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<h1>CTR and Engagement Opportunity Scoring</h1>
+
+<p class="subtitle">
+Ranking search-visible pages for human review using search visibility and engagement signals
+</p>
+
+<div class="meta">
+<strong>Lane:</strong> CTR / Engagement Opportunity Scoring<br>
+<strong>Analysis window:</strong> March 2026<br>
+<strong>Unit of analysis:</strong> one page, one client, one month<br>
+<strong>Model:</strong> Logistic Regression<br>
+<strong>Validation:</strong> grouped by client
+</div>
+
+<h2>Abstract</h2>
+
+<p>
+This study investigates whether pages with search visibility can be ranked for human review when they appear to under-capture clicks relative to their search position.
+Using the FlyRank internship warehouse, March 2026 search and engagement data were aggregated to the page level and evaluated using a transparent rule-based baseline and Logistic Regression.
+The model was evaluated using a grouped-by-client 70/30 split, with 32 clients in training and 15 held-out clients, and achieved a Precision@50 of 0.98 compared with 1.00 for the baseline on the same test set.
+The results show that the simple CTR and position-based rule already captures most of the signal represented by the current underperformance proxy, while Logistic Regression provides a comparable ranking for decision-support.
+These findings are descriptive and directional rather than causal, and the resulting queue is intended to prioritize human review rather than automatically change content.
+</p>
+
+<h2>1. Introduction / Problem</h2>
+
+<p>
+Content and SEO teams often have more pages to review than they have time to inspect manually.
+This project focuses on a practical prioritization question: among pages that have search visibility, which ones appear to capture fewer clicks than expected for their search position?
+</p>
+
+<p>
+The goal is not to prove why a page performs poorly or to predict Google's ranking algorithm.
+Instead, the goal is to create a ranked review queue that helps a content editor or SEO specialist decide where to look first.
+</p>
+
+<p>
+The output is therefore decision-support. A flagged page is a candidate for human investigation of its title, description, snippet, relevance, or surrounding context.
+</p>
+
+<h2>2. Data</h2>
+
+<p>
+The analysis uses the FlyRank internship warehouse hosted on Hugging Face, specifically the
+<code>fact_content_daily_performance</code> table.
+The analysis window is March 1–31, 2026.
+</p>
+
+<p>
+The source table is at page-client-day grain.
+The March partition contains 9,841,378 page-day rows, with no duplicate
+<code>(client_hash_id, content_hash_id, date)</code> keys in the verified grain check.
+</p>
+
+<p>
+After filtering to rows with available GSC data and positive impressions and aggregating daily observations across the month, the analysis contains 176,738 pages across 47 clients.
+</p>
+
+<p>
+Only approximately 36.7% of page-day rows have
+<code>gsc_data_available = TRUE</code>.
+Therefore, the findings apply to pages represented by available GSC data during this analysis window rather than to the complete underlying page population.
+</p>
+
+<p>
+AI-referral fields were excluded because they belong to a different analysis lane.
+Click and impression totals were used to calculate CTR and the target definition but were not used as model features because doing so would create leakage.
+</p>
+
+<h2>3. Methodology</h2>
+
+<h3>Target</h3>
+
+<p>
+The target, <code>is_underperforming</code>, is a proxy rather than a direct business outcome.
+A page is labeled underperforming when its CTR is at or below the median CTR for its search-position bucket.
+The buckets are 1–3, 4–10, 11–20, 21–50, and 50+.
+</p>
+
+<h3>Features</h3>
+
+<p>
+The Logistic Regression model uses:
+<code>avg_position</code>,
+<code>log_impressions</code>,
+<code>engaged_sessions</code>,
+<code>total_engagement_sec</code>, and
+<code>scroll_events</code>.
+</p>
+
+<h3>Baseline</h3>
+
+<p>
+The baseline is a transparent rule-based ranking method.
+It uses CTR relative to the training-set position-bucket median together with a monthly impression-volume filter.
+Candidate pages are ranked by impression volume.
+</p>
+
+<h3>Model</h3>
+
+<p>
+Logistic Regression was selected as a simple and interpretable first model.
+Its predicted probability is used to rank pages for review.
+</p>
+
+<h3>Validation</h3>
+
+<p>
+The evaluation uses a grouped 70/30 split by <code>client_hash_id</code> with random seed 42.
+This produced 32 training clients and 15 held-out test clients with zero client overlap.
+The grouped design avoids placing pages from the same client in both training and test sets.
+</p>
+
+<h3>Leakage audit</h3>
+
+<p>
+A deliberate leakage test added <code>total_clicks</code> to the model features even though clicks are used to construct CTR and the target.
+This produced training accuracy of 0.9911, demonstrating that the feature contains information directly related to the target construction.
+The feature was therefore excluded from the final model.
+</p>
+
+<h2>4. Results</h2>
+
+<div class="result">
+Precision@50: Baseline 1.00 &nbsp; | &nbsp; Logistic Regression 0.98
+</div>
+
+<table>
+<tr>
+<th>Method</th>
+<th>Precision@50</th>
+<th>Test base rate</th>
+</tr>
+<tr>
+<td>Transparent baseline</td>
+<td>1.00</td>
+<td>0.5565</td>
+</tr>
+<tr>
+<td>Logistic Regression</td>
+<td>0.98</td>
+<td>0.5565</td>
+</tr>
+</table>
+
+<p>
+The transparent baseline slightly outperformed Logistic Regression on the same grouped test set.
+This should not be interpreted as evidence that the rule is a better general-purpose predictive model.
+The baseline has a structural advantage because it directly uses the CTR-based rule that is closely related to the proxy target definition.
+</p>
+
+<img src="../work/figures/model_vs_baseline.png" alt="Model versus baseline Precision at 50">
+
+<p>
+The grouped validation produced 45,834 held-out observations from 15 clients.
+A naive random row split previously produced Precision@50 of 1.00, compared with 0.98 for the grouped split.
+The grouped result is therefore used as the more conservative evaluation.
+</p>
+
+<h3>CTR by search position</h3>
+
+<img src="../work/figures/ctr_by_position.png" alt="Average CTR by search position">
+
+<p class="small">
+Observed average CTR declines across the search-position buckets in the March 2026 analysis window.
+</p>
+
+<h2>5. Limitations & Honest Framing</h2>
+
+<ul>
+<li>This is a same-period scoring analysis, not a future-performance forecaster.</li>
+<li>The target is a proxy and does not directly indicate that a page needs a rewrite.</li>
+<li>All five position buckets have a training-set median CTR of 0.0, creating a strong zero-click floor effect.</li>
+<li>The available engagement signals also showed a zero-value floor, so the decay rule could not reliably distinguish refresh candidates in this population.</li>
+<li>Only about 36.7% of page-day rows have available GSC data.</li>
+<li>The analysis does not establish that a title, snippet, or content change causes CTR to improve.</li>
+<li>The findings are specific to this dataset and analysis window and do not establish anything about Google's ranking algorithm.</li>
+</ul>
+
+<h2>6. Ranked Recommendations</h2>
+
+<p>
+The action-playbook principle is:
+<strong>the rule explains, the model orders.</strong>
+The reason code provides a human-readable explanation, while the model score determines review priority.
+</p>
+
+<table>
+<tr>
+<th>Reason code</th>
+<th>Count</th>
+<th>Recommended action</th>
+</tr>
+<tr>
+<td>ZERO_CTR_WITH_ZERO_PEER_BASELINE</td>
+<td>14,952</td>
+<td>MONITOR</td>
+</tr>
+<tr>
+<td>ZERO_CLICKS_WITH_STRONG_POSITION</td>
+<td>10,555</td>
+<td>REVIEW_SNIPPET_TITLE</td>
+</tr>
+</table>
+
+<p>
+Pages with average position ≤ 10 but zero clicks are candidates for human review of the title or snippet.
+This is a review signal, not proof that the title or snippet caused the low CTR.
+</p>
+
+<p>
+Pages with no stronger signal default to monitoring rather than being assigned a forced content change.
+</p>
+
+<img src="../work/figures/action_distribution.png" alt="Recommended action distribution">
+
+<h3>Human review and no-go cases</h3>
+
+<p>
+Every recommendation requires human review.
+The queue should not automatically publish, rewrite, delete, redirect, or deprioritize content.
+A reason code is not proof of an underlying cause, and no recommendation should be treated as a guarantee of improved performance.
+</p>
+
+<h3>Monitoring and retraining</h3>
+
+<p>
+The queue should be re-evaluated on future labeled data.
+A meaningful drop in Precision@50, major changes in the target base rate, or changes in the position-bucket CTR distribution should trigger investigation.
+Retraining should be considered when the relationship between the available features and the target proxy changes materially.
+</p>
+
+<h2>7. Reproducibility</h2>
+
+<p>
+The complete analysis is stored in the public GitHub repository.
+The capstone notebook documents the data window, feature definitions, target construction, grouped validation design, leakage test, evaluation metric, and generated artifacts.
+</p>
+
+<p>
+Relevant notebooks from the project include the Week 5 model, Week 6 validation audit, Week 7 action playbook, and the final capstone notebook.
+</p>
+
+<p>
+Repository:
+<a href="https://github.com/omarsamehabobaker619-bot/flyrank-ml-internship" target="_blank">
+FlyRank ML Internship repository
+</a>
+</p>
+
+<h2>8. Acknowledgments & Data Credit</h2>
+
+<p>
+Built on the FlyRank ML Internship dataset.
+</p>
+
+<p>
+Data source:
+<a href="https://flyrank.ai/" target="_blank">FlyRank</a>
+</p>
+
+</main>
+</body>
+</html>
