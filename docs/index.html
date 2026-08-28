@@ -3,87 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>CTR and Engagement Opportunity Scoring</title>
+
 <style>
 body {
-  font-family: Arial, sans-serif;
-  line-height: 1.7;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  color: #222;
-  background: #f7f7f7;
+    font-family: Arial, sans-serif;
+    line-height: 1.7;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    color: #222;
+    background: #f7f7f7;
 }
+
 main {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
 }
+
 h1 {
-  font-size: 38px;
-  line-height: 1.2;
+    font-size: 38px;
+    line-height: 1.2;
+    margin-bottom: 12px;
 }
+
 h2 {
-  margin-top: 40px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 8px;
+    margin-top: 44px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
 }
+
+h3 {
+    margin-top: 28px;
+}
+
 .subtitle {
-  color: #666;
-  font-size: 18px;
+    color: #666;
+    font-size: 18px;
+    margin-top: 0;
 }
+
 .meta {
-  background: #f1f1f1;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 20px 0;
+    background: #f1f1f1;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 24px 0;
 }
+
 .result {
-  font-size: 24px;
-  font-weight: bold;
-  padding: 18px;
-  background: #eef5ff;
-  border-left: 5px solid #4472c4;
-  margin: 20px 0;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 18px;
+    background: #eef5ff;
+    border-left: 5px solid #4472c4;
+    margin: 24px 0;
 }
+
 img {
-  max-width: 100%;
-  display: block;
-  margin: 20px auto;
-  border-radius: 8px;
+    max-width: 100%;
+    display: block;
+    margin: 24px auto;
+    border-radius: 8px;
 }
+
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
 }
+
 th, td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
 }
+
 th {
-  background: #f1f1f1;
+    background: #f1f1f1;
 }
+
 .small {
-  color: #666;
-  font-size: 14px;
+    color: #666;
+    font-size: 14px;
 }
+
+.note {
+    background: #fafafa;
+    border-left: 4px solid #aaa;
+    padding: 14px 18px;
+    margin: 20px 0;
+}
+
+.footer {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    color: #666;
+}
+
 a {
-  color: #2457a6;
+    color: #2457a6;
 }
+
 @media (max-width: 600px) {
-  main {
-    padding: 24px;
-  }
-  h1 {
-    font-size: 30px;
-  }
+    main {
+        padding: 24px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    .result {
+        font-size: 20px;
+    }
 }
 </style>
 </head>
 
 <body>
+
 <main>
 
 <h1>CTR and Engagement Opportunity Scoring</h1>
@@ -100,6 +141,7 @@ Ranking search-visible pages for human review using search visibility and engage
 <strong>Validation:</strong> grouped by client
 </div>
 
+
 <h2>Abstract</h2>
 
 <p>
@@ -109,6 +151,7 @@ The model was evaluated using a grouped-by-client 70/30 split, with 32 clients i
 The results show that the simple CTR and position-based rule already captures most of the signal represented by the current underperformance proxy, while Logistic Regression provides a comparable ranking for decision-support.
 These findings are descriptive and directional rather than causal, and the resulting queue is intended to prioritize human review rather than automatically change content.
 </p>
+
 
 <h2>1. Introduction / Problem</h2>
 
@@ -123,8 +166,10 @@ Instead, the goal is to create a ranked review queue that helps a content editor
 </p>
 
 <p>
-The output is therefore decision-support. A flagged page is a candidate for human investigation of its title, description, snippet, relevance, or surrounding context.
+The output is therefore decision-support.
+A flagged page is a candidate for human investigation of its title, description, snippet, relevance, or surrounding context.
 </p>
+
 
 <h2>2. Data</h2>
 
@@ -155,6 +200,7 @@ AI-referral fields were excluded because they belong to a different analysis lan
 Click and impression totals were used to calculate CTR and the target definition but were not used as model features because doing so would create leakage.
 </p>
 
+
 <h2>3. Methodology</h2>
 
 <h3>Target</h3>
@@ -165,6 +211,7 @@ A page is labeled underperforming when its CTR is at or below the median CTR for
 The buckets are 1–3, 4–10, 11–20, 21–50, and 50+.
 </p>
 
+
 <h3>Features</h3>
 
 <p>
@@ -174,7 +221,10 @@ The Logistic Regression model uses:
 <code>engaged_sessions</code>,
 <code>total_engagement_sec</code>, and
 <code>scroll_events</code>.
+These features are aggregated from the March 2026 analysis window and are not directly derived from
+<code>total_clicks</code>, which is used to construct the target.
 </p>
+
 
 <h3>Baseline</h3>
 
@@ -184,12 +234,14 @@ It uses CTR relative to the training-set position-bucket median together with a 
 Candidate pages are ranked by impression volume.
 </p>
 
+
 <h3>Model</h3>
 
 <p>
 Logistic Regression was selected as a simple and interpretable first model.
 Its predicted probability is used to rank pages for review.
 </p>
+
 
 <h3>Validation</h3>
 
@@ -199,6 +251,7 @@ This produced 32 training clients and 15 held-out test clients with zero client 
 The grouped design avoids placing pages from the same client in both training and test sets.
 </p>
 
+
 <h3>Leakage audit</h3>
 
 <p>
@@ -206,6 +259,7 @@ A deliberate leakage test added <code>total_clicks</code> to the model features 
 This produced training accuracy of 0.9911, demonstrating that the feature contains information directly related to the target construction.
 The feature was therefore excluded from the final model.
 </p>
+
 
 <h2>4. Results</h2>
 
@@ -219,11 +273,13 @@ Precision@50: Baseline 1.00 &nbsp; | &nbsp; Logistic Regression 0.98
 <th>Precision@50</th>
 <th>Test base rate</th>
 </tr>
+
 <tr>
 <td>Transparent baseline</td>
 <td>1.00</td>
 <td>0.5565</td>
 </tr>
+
 <tr>
 <td>Logistic Regression</td>
 <td>0.98</td>
@@ -237,7 +293,9 @@ This should not be interpreted as evidence that the rule is a better general-pur
 The baseline has a structural advantage because it directly uses the CTR-based rule that is closely related to the proxy target definition.
 </p>
 
-<img src="/flyrank-ml-internship/work/figures/model_vs_baseline.png" alt="Model versus baseline Precision at 50">
+<img
+src="https://omarsamehabobaker619-bot.github.io/flyrank-ml-internship/work/figures/model_vs_baseline.png"
+alt="Model versus baseline Precision at 50">
 
 <p>
 The grouped validation produced 45,834 held-out observations from 15 clients.
@@ -245,25 +303,36 @@ A naive random row split previously produced Precision@50 of 1.00, compared with
 The grouped result is therefore used as the more conservative evaluation.
 </p>
 
+
 <h3>CTR by search position</h3>
 
-<img src="/flyrank-ml-internship/work/figures/ctr_by_position.png" alt="Average CTR by search position">
+<img
+src="https://omarsamehabobaker619-bot.github.io/flyrank-ml-internship/work/figures/ctr_by_position.png"
+alt="Average CTR by search position">
 
 <p class="small">
 Observed average CTR declines across the search-position buckets in the March 2026 analysis window.
 </p>
 
-<h2>5. Limitations & Honest Framing</h2>
+
+<h2>5. Limitations &amp; Honest Framing</h2>
 
 <ul>
-<li>This is a same-period scoring analysis, not a future-performance forecaster.</li>
-<li>The target is a proxy and does not directly indicate that a page needs a rewrite.</li>
-<li>All five position buckets have a training-set median CTR of 0.0, creating a strong zero-click floor effect.</li>
-<li>The available engagement signals also showed a zero-value floor, so the decay rule could not reliably distinguish refresh candidates in this population.</li>
-<li>Only about 36.7% of page-day rows have available GSC data.</li>
-<li>The analysis does not establish that a title, snippet, or content change causes CTR to improve.</li>
-<li>The findings are specific to this dataset and analysis window and do not establish anything about Google's ranking algorithm.</li>
+<li><strong>Same-period scoring:</strong> this is a scoring analysis using the March 2026 period, not a future-performance forecaster.</li>
+
+<li><strong>Proxy target:</strong> the target does not directly indicate that a page needs a rewrite.</li>
+
+<li><strong>Zero-CTR floor:</strong> all five position buckets have a training-set median CTR of 0.0, creating a strong zero-click floor effect.</li>
+
+<li><strong>Decay signal limitation:</strong> the available engagement signals also showed a zero-value floor, so the decay rule could not reliably distinguish refresh candidates in this population.</li>
+
+<li><strong>Partial GSC coverage:</strong> only about 36.7% of page-day rows have available GSC data.</li>
+
+<li><strong>No causal claim:</strong> the analysis does not establish that a title, snippet, or content change causes CTR to improve.</li>
+
+<li><strong>Scope:</strong> the findings are specific to this dataset and analysis window and do not establish anything about Google's ranking algorithm.</li>
 </ul>
+
 
 <h2>6. Ranked Recommendations</h2>
 
@@ -279,11 +348,13 @@ The reason code provides a human-readable explanation, while the model score det
 <th>Count</th>
 <th>Recommended action</th>
 </tr>
+
 <tr>
 <td>ZERO_CTR_WITH_ZERO_PEER_BASELINE</td>
 <td>14,952</td>
 <td>MONITOR</td>
 </tr>
+
 <tr>
 <td>ZERO_CLICKS_WITH_STRONG_POSITION</td>
 <td>10,555</td>
@@ -300,8 +371,11 @@ This is a review signal, not proof that the title or snippet caused the low CTR.
 Pages with no stronger signal default to monitoring rather than being assigned a forced content change.
 </p>
 
-<img src="/flyrank-ml-internship/work/figures/action_distribution.png" alt="Recommended action distribution">
-  
+<img
+src="https://omarsamehabobaker619-bot.github.io/flyrank-ml-internship/work/figures/action_distribution.png"
+alt="Recommended action distribution">
+
+
 <h3>Human review and no-go cases</h3>
 
 <p>
@@ -309,6 +383,7 @@ Every recommendation requires human review.
 The queue should not automatically publish, rewrite, delete, redirect, or deprioritize content.
 A reason code is not proof of an underlying cause, and no recommendation should be treated as a guarantee of improved performance.
 </p>
+
 
 <h3>Monitoring and retraining</h3>
 
@@ -318,6 +393,7 @@ A meaningful drop in Precision@50, major changes in the target base rate, or cha
 Retraining should be considered when the relationship between the available features and the target proxy changes materially.
 </p>
 
+
 <h2>7. Reproducibility</h2>
 
 <p>
@@ -326,27 +402,45 @@ The capstone notebook documents the data window, feature definitions, target con
 </p>
 
 <p>
-Relevant notebooks from the project include the Week 5 model, Week 6 validation audit, Week 7 action playbook, and the final capstone notebook.
+Relevant project notebooks include the Week 5 model, Week 6 validation audit, Week 7 action playbook, and the final capstone notebook.
 </p>
 
 <p>
 Repository:
-<a href="https://github.com/omarsamehabobaker619-bot/flyrank-ml-internship" target="_blank">
+<a
+href="https://github.com/omarsamehabobaker619-bot/flyrank-ml-internship"
+target="_blank"
+rel="noopener">
 FlyRank ML Internship repository
 </a>
 </p>
-  
-<h2>8. Acknowledgments & Data Credit</h2>
+
+
+<h2>8. Acknowledgments &amp; Data Credit</h2>
 
 <p>
-Built on the FlyRank ML Internship dataset.
+<strong>Built on the FlyRank ML Internship dataset.</strong>
 </p>
 
 <p>
 Data source:
-<a href="https://flyrank.ai/" target="_blank">FlyRank</a>
+<a
+href="https://flyrank.ai/"
+target="_blank"
+rel="noopener">
+FlyRank
+</a>
 </p>
 
+
+<div class="footer">
+<p>
+This project is intended as a public research and decision-support artifact.
+The reported results are observed measurements from the stated dataset and validation design.
+</p>
+</div>
+
 </main>
+
 </body>
 </html>
